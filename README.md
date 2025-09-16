@@ -5,3 +5,10 @@ One of the most asked code questions during a front-end interview is "Can you cr
 This tutorial shows you how to build a Single Page App using vanilla JavaScript. I show you how to implement client-side routing both ways (hash or URL) in an easy-to-use format that can be replicated for any project.
 
 View video on YouTube: [https://youtu.be/JmSb1VFoP7w](https://youtu.be/JmSb1VFoP7w)
+
+# Updates
+
+- Route redirecting back to homepage fixed
+- Fixes blinking other page
+- Each route will load
+- Imports JS problem fix

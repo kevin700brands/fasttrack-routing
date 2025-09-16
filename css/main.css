@@ -1,0 +1,10 @@
+body {
+}
+
+.hide {
+  opacity: 0;
+}
+
+.unhide {
+  opacity: 1;
+}
