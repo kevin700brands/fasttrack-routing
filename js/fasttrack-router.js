@@ -9,11 +9,23 @@ async function globalHtml(content) {
   // removes preloader
   const unhideContent = content.replace(/z-index: 777/g, "z-index: -777");
 
-  const newHtml = `
-  <div id="content">${unhideContent}</div> 
-  `;
+  // first split
+  const headerSplit = splits[0].split('<html lang="en">');
+  const headHtml = headerSplit[1].split("<head>")[1].split("</head>")[0];
+  const bodyHtml =
+    headerSplit[1].split("<head>")[1].split("</head>")[1].split("<body>")[1] +
+    `<div id="content">${unhideContent}</div>`;
 
-  return splits[0] + newHtml + splits[1];
+  // second split
+  const footerHtml = `<footer>${
+    splits[1].split("<footer>")[1].split("</footer>")[0]
+  }</footer>`;
+
+  return {
+    head: headHtml,
+    body: bodyHtml,
+    footerHtml: footerHtml,
+  };
 }
 
 /// Load Script
@@ -40,7 +52,7 @@ function loadScript(url, callback) {
 
 /// Main JS
 (function () {
-  const urlPageTitle = "JS Single Page Application Router";
+  const urlPageTitle = "Alana Springsteen";
 
   // create document click that watches the nav links only
   document.addEventListener("click", (e) => {
@@ -58,24 +70,35 @@ function loadScript(url, callback) {
     404: {
       template: "/404.html",
       title: "404 | " + urlPageTitle,
-      description: "Page not found",
     },
     "/": {
       template: "/homepage.html",
       title: "Home | " + urlPageTitle,
-      description: "This is the home page",
     },
     "/about.html": {
       page: "about",
       template: "/about.html",
       title: "About Us | " + urlPageTitle,
-      description: "This is the about page",
     },
     "/contact.html": {
       page: "contact",
       template: "/contact.html",
       title: "Contact Us | " + urlPageTitle,
-      description: "This is the contact page",
+    },
+    "/music.html": {
+      page: "music",
+      template: "/music.html",
+      title: "Music | " + urlPageTitle,
+    },
+    "/tour.html": {
+      page: "music",
+      template: "/tour.html",
+      title: "Tour | " + urlPageTitle,
+    },
+    "/vip.html": {
+      page: "vip",
+      template: "/vip.html",
+      title: "Tour | " + urlPageTitle,
     },
   };
 
@@ -84,7 +107,12 @@ function loadScript(url, callback) {
     if (event) {
       event = event; // get window.event if event argument not provided
       event.preventDefault();
-      window.history.pushState({}, "", event.target.href);
+
+      if (event.target.target == "_blank") {
+        window.open(event.target.href, event.target.target);
+      } else {
+        window.history.pushState({}, "", event.target.href);
+      }
     }
 
     urlLocationHandler();
@@ -94,6 +122,7 @@ function loadScript(url, callback) {
   async function urlLocationHandler() {
     const location = window.location.pathname; // get the url path
 
+    console.log(location);
     // if the path length is 0, set it to primary page route
     if (location.length == 0) {
       location = "/";
@@ -133,7 +162,10 @@ function loadScript(url, callback) {
   async function refetch(route) {
     imports();
 
-    const wrapper = document.getElementById(route.page);
+    const html = document.querySelector("html");
+    const head = document.querySelector("head");
+    const body = document.querySelector("body");
+    const wrapper = document.getElementById(route.page); // current page content
 
     // get the html from the template
     const html2 = await fetch(route.template).then(async (response) => {
@@ -142,8 +174,18 @@ function loadScript(url, callback) {
 
     hidePreloader(); // hides preloader
 
-    wrapper.innerHTML = ""; // clear
-    wrapper.insertAdjacentHTML("beforebegin", await globalHtml(html2)); // insert new html
+    head.innerHTML = "";
+    body.innerHTML = "";
+    // html.innerHTML = ""; // clear
+
+    // Inserts
+    const _html = await globalHtml(html2);
+
+    head.insertAdjacentHTML("afterbegin", _html.head);
+    body.insertAdjacentHTML("afterbegin", _html.body);
+    body.insertAdjacentHTML("beforeend", _html.footerHtml);
+
+    // html.insertAdjacentHTML("afterbegin", ); // insert new html
   }
 
   // All imports here: CDN
